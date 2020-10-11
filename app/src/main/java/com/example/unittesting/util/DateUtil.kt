@@ -6,9 +6,9 @@ import java.util.*
 public class DateUtil {
 
     companion object {
-        private val monthNumbers =
+        val monthNumbers =
             arrayOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-        private val months = arrayOf(
+        val months = arrayOf(
             "Jan",
             "Feb",
             "Mar",
@@ -22,7 +22,7 @@ public class DateUtil {
             "Nov",
             "Dec"
         )
-        private val GET_MONTH_ERROR = "Error. Invalid month number."
+        val GET_MONTH_ERROR = "Error. Invalid month number."
         private val DATE_FORMAT = "MM-yyyy"
 
         public fun getCurrentTimeStamp(): String {
