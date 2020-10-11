@@ -1,4 +1,4 @@
-package com.example.unittesting.Models
+package com.example.unittesting.models
 
 import android.os.Parcelable
 import androidx.room.ColumnInfo
