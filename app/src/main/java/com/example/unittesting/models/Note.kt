@@ -21,4 +21,8 @@ data class Note(
     @ColumnInfo(name = "timeStamp")
     var timeStamp: String
 
-) : Parcelable
+) : Parcelable {
+    constructor(
+        note: Note
+    ) : this(note.id, note.title, note.content, note.timeStamp)
+}

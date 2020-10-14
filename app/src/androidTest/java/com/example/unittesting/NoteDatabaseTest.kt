@@ -6,13 +6,17 @@ import com.example.unittesting.persistence.NoteDao
 import com.example.unittesting.persistence.NoteDatabase
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 
 public abstract class NoteDatabaseTest {
 
     //system under test
     private lateinit var noteDatabase: NoteDatabase
-
-    private fun getNoteDao(): NoteDao {
+//    @Rule
+//    @JvmField
+//    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    fun getNoteDao(): NoteDao {
         return noteDatabase.getNoteDao()
     }
 
