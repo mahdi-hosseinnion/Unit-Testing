@@ -1,5 +1,6 @@
 package com.example.unittesting.di
 
+import android.app.Application
 import com.example.unittesting.BaseApplication
 import dagger.BindsInstance
 import dagger.Component
@@ -22,7 +23,7 @@ interface AppComponent : AndroidInjector<BaseApplication> {
     interface Builder {
 
         @BindsInstance
-        fun application(baseApplication: BaseApplication): Builder
+        fun application(application: Application): Builder
         fun build(): AppComponent
     }
 }

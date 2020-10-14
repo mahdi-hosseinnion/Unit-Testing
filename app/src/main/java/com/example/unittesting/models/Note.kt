@@ -11,13 +11,14 @@ import kotlinx.android.parcel.Parcelize
 data class Note(
 
     @PrimaryKey(autoGenerate = true)
-    private val id: Int,
+    @ColumnInfo(name = "id")
+    var id: Int,
 
     @ColumnInfo(name = "title")
-    val title: String,
+    var title: String,
     @ColumnInfo(name = "content")
-    val content: String?,
+    var content: String?,
     @ColumnInfo(name = "timeStamp")
-    val timeStamp: String
+    var timeStamp: String
 
 ) : Parcelable

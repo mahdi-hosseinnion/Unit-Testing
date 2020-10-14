@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.unittesting.models.Note
 
 
-@Database(entities = [Note::class], version = 1)
+@Database(entities = [Note::class], version = 2)
 public abstract class NoteDatabase : RoomDatabase() {
 
     public abstract fun getNoteDao(): NoteDao
