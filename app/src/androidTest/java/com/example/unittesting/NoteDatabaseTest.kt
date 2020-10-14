@@ -7,7 +7,7 @@ import com.example.unittesting.persistence.NoteDatabase
 import org.junit.After
 import org.junit.Before
 
-public class NoteDatabaseTest {
+public abstract class NoteDatabaseTest {
 
     //system under test
     private lateinit var noteDatabase: NoteDatabase
