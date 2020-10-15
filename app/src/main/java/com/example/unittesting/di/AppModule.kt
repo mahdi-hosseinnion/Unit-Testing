@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.unittesting.persistence.NoteDao
 import com.example.unittesting.persistence.NoteDatabase
 import com.example.unittesting.persistence.NoteDatabase.Companion.DATABASE_NAME
+import com.example.unittesting.repository.NoteRepository
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -27,4 +28,11 @@ object AppModule {
     fun provideNoteDao(appDb: NoteDatabase): NoteDao {
         return appDb.getNoteDao()
     }
+
+    @Singleton
+    @Provides
+    fun provideNoteRepository(noteDao: NoteDao): NoteRepository {
+        return NoteRepository(noteDao)
+    }
+
 }
