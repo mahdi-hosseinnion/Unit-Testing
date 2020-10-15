@@ -1,10 +1,9 @@
-package com.example.unittesting
+package com.example.unittesting.ui.noteList
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.unittesting.R
 import com.example.unittesting.repository.NoteRepository
-import com.example.unittesting.util.getOrAwaitValue
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
