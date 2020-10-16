@@ -10,10 +10,16 @@ sealed class Resource<T>(
     class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
 
     override fun equals(other: Any?): Boolean {
-
+        println("equlas method " + other?.javaClass?.name)
         if (other?.javaClass != javaClass ||
-            other?.javaClass != Resource::class.java
+            (
+                    other?.javaClass != Resource::class.java &&
+                    other?.javaClass != Resource.Success::class.java &&
+                    other?.javaClass != Resource.Error::class.java &&
+                    other?.javaClass != Resource.Loading::class.java
+                    )
         ) {
+            println("11")
             return false
         }
         val resource = other as Resource<*>
@@ -21,6 +27,7 @@ sealed class Resource<T>(
         if (resource.data != this.data ||
             resource.message != this.message
         ) {
+            println("22")
             return false
         }
 
