@@ -24,9 +24,6 @@ constructor(
 
 
     fun insertNote(note: Note): Flowable<Resource<Int>> {
-        if (noteDao==null){
-            return SingleToFlowable.just(Resource.error("null Dao"))
-        }
         return noteDao.insertNote(note)
             .delaySubscription(NETWORK_DELAY, TimeUnit.MILLISECONDS)//for testing
             //convert long to int b/c all other action return integer
@@ -49,4 +46,21 @@ constructor(
             .subscribeOn(Schedulers.io())
             .toFlowable()
     }
+
+    fun updateNote(note: Note): Flowable<Resource<Int>> = noteDao.updateNote(note)
+        .delaySubscription(NETWORK_DELAY, TimeUnit.MILLISECONDS)
+        .onErrorReturn { throwable ->
+            throwable.printStackTrace()
+            -1
+        }
+        .map { aInt ->
+            if (aInt > 0) {
+                Resource.success(aInt)
+            } else {
+                Resource.error("Updating new note\n ERROR: Unknown error")
+            }
+        }
+        .subscribeOn(Schedulers.io())
+        .toFlowable()
+
 }
