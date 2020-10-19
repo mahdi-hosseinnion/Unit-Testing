@@ -7,6 +7,7 @@ import com.example.unittesting.util.Constants.NETWORK_DELAY
 import io.reactivex.Flowable
 import io.reactivex.Scheduler
 import io.reactivex.annotations.SchedulerSupport.IO
+import io.reactivex.internal.operators.single.SingleToFlowable
 import io.reactivex.schedulers.Schedulers
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
@@ -14,6 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+//open class NoteRepository
 class NoteRepository
 @Inject
 constructor(
@@ -21,26 +23,30 @@ constructor(
 ) {
 
 
-    fun insertNote(note: Note): Flowable<Resource<Int>> = noteDao.insertNote(note)
-        .delaySubscription(NETWORK_DELAY, TimeUnit.MILLISECONDS)//for testing
-        //convert long to int b/c all other action return integer
-        .map { long ->
-            long.toInt()
+    fun insertNote(note: Note): Flowable<Resource<Int>> {
+        if (noteDao==null){
+            return SingleToFlowable.just(Resource.error("null Dao"))
         }
-        .onErrorReturn { throwable ->
-            throwable.printStackTrace()
-            -1
-        }
-        .map { int ->
-            if (int > 0) {
-                //success
-                Resource.Success(int)
-            } else {
-                //error
-                Resource.Error("Inserting new note\n ERROR: Unknown error")
+        return noteDao.insertNote(note)
+            .delaySubscription(NETWORK_DELAY, TimeUnit.MILLISECONDS)//for testing
+            //convert long to int b/c all other action return integer
+            .map { long ->
+                return@map long.toInt()
             }
-        }
-        .subscribeOn(Schedulers.io())
-        .toFlowable()
-
+            .onErrorReturn { throwable ->
+                throwable.printStackTrace()
+                return@onErrorReturn -1
+            }
+            .map { int ->
+                if (int > 0) {
+                    //success
+                    return@map Resource.success(int)
+                } else {
+                    //error
+                    return@map Resource.error("Inserting new note\n ERROR: Unknown error", null)
+                }
+            }
+            .subscribeOn(Schedulers.io())
+            .toFlowable()
+    }
 }

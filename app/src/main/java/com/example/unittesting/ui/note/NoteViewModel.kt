@@ -30,7 +30,7 @@ constructor(
         } ?: object : LiveData<Resource<Int>>() {
                 override fun onActive() {
                     super.onActive()
-                    value = Resource.Error("Inserting note error: note is null")
+                    value = Resource.error("Inserting note error: note is null",null)
                 }
             }
 

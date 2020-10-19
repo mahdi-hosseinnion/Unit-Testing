@@ -46,7 +46,7 @@ class NoteRepositoryTest {
         verify(noteDao).insertNote(NOTE_1)
         verifyNoMoreInteractions(noteDao)
         println("insertNote: $returnedValue.")
-        assertEquals(Resource.Success(1), returnedValue)
+        assertEquals(Resource.success(1), returnedValue)
         //or test using RxJava
 //        noteRepository.insertNote(NoteUtil.NOTE_1)
 //            .test()
@@ -66,7 +66,7 @@ class NoteRepositoryTest {
         //Assert
         verify(noteDao).insertNote(NOTE_1)
         verifyNoMoreInteractions(noteDao)
-        assertEquals(Resource.Error<Int>("Inserting new note\n ERROR: Unknown error"), returnValue)
+        assertEquals(Resource.error<Int>("Inserting new note\n ERROR: Unknown error",null), returnValue)
 
     }
 
