@@ -57,7 +57,7 @@ constructor(
             if (aInt > 0) {
                 Resource.success(aInt)
             } else {
-                Resource.error("Updating new note\n ERROR: Unknown error")
+                Resource.error("Updating note\n ERROR: Unknown error")
             }
         }
         .subscribeOn(Schedulers.io())
