@@ -86,5 +86,5 @@ class NoteViewModelTest {
         //Assert
         verify(noteRepository, never()).insertNote(NOTE_1)
     }
-
+    //just learn coverage test by rightClick on any class and Run 'Any class' with coverage
 }
