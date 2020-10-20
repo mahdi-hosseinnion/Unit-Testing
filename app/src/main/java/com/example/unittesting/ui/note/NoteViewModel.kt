@@ -9,6 +9,7 @@ import com.example.unittesting.repository.NoteRepository
 import com.example.unittesting.ui.Resource
 import com.example.unittesting.util.Constants.NOTE_TITLE_NULL
 import com.example.unittesting.util.DateUtil
+import org.reactivestreams.Subscription
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,16 +24,21 @@ constructor(
 
     private var isNewNote: Boolean = true
 
+    private var updateSubscription: Subscription? = null
+    private var insertSubscription: Subscription? = null
     val note: LiveData<Note>
         get() = _Note
     val viewState: LiveData<NoteViewState>
         get() = _ViewState
 
     fun insertNote(): LiveData<Resource<Int>> {
-        return note.value?.let {
+        return note.value?.let { note ->
             LiveDataReactiveStreams
                 .fromPublisher(
-                    noteRepository.insertNote(it)
+                    noteRepository.insertNote(note)
+                        .doOnSubscribe {
+                            insertSubscription = it
+                        }
 
                 )
         } ?: object : LiveData<Resource<Int>>() {
@@ -42,6 +48,22 @@ constructor(
             }
         }
 
+    }
+
+    fun updateNote(): LiveData<Resource<Int>> {
+        return note.value?.let { note ->
+            LiveDataReactiveStreams.fromPublisher(
+                noteRepository.updateNote(note)
+                    .doOnSubscribe {
+                        updateSubscription = it
+                    }
+            )
+        } ?: object : LiveData<Resource<Int>>() {
+            override fun onActive() {
+                super.onActive()
+                value = Resource.error("Inserting note error: note is null")
+            }
+        }
     }
 
     fun updateNote(title: String, content: String) {
@@ -60,6 +82,10 @@ constructor(
     }
 
     fun saveNote(): LiveData<Resource<Int>>? {
+        if (!shouldAllowSave()) {
+            return null
+        }
+        cancelPendingTransaction()
         return null
     }
 
@@ -83,6 +109,25 @@ constructor(
         string = string.replace("\n", "")
         string = string.replace(" ", "")
         return string
+    }
+
+    fun cancelPendingTransaction() {
+        cancelInsertTransaction()
+        cancelUpdateTransaction()
+    }
+
+    fun cancelInsertTransaction() {
+        insertSubscription?.cancel()
+        insertSubscription = null
+    }
+
+    fun cancelUpdateTransaction() {
+        updateSubscription?.cancel()
+        updateSubscription = null
+    }
+
+    private fun shouldAllowSave(): Boolean {
+        return removeWhiteSpace(note.value?.content!!).isNotEmpty()
     }
 
     fun shouldNavigateBack(): Boolean =
