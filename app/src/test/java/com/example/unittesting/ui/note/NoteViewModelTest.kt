@@ -2,12 +2,15 @@ package com.example.unittesting.ui.note
 
 import com.example.unittesting.repository.NoteRepository
 import com.example.unittesting.ui.Resource
+import com.example.unittesting.util.DateUtil
 import com.example.unittesting.util.InstantExecutorExtension
 import com.example.unittesting.util.getOrAwaitValue
 import com.exmaple.unittesting.NoteUtil.NOTE_1
+import com.exmaple.unittesting.NoteUtil.NOTE_2
 import io.reactivex.Flowable
 import io.reactivex.internal.operators.single.SingleToFlowable
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -43,7 +46,7 @@ class NoteViewModelTest {
             val note = noteViewModel.note.getOrAwaitValue()
         }
         //Assert
-        Assertions.assertEquals("LiveData value was never set.", timedOutException.message)
+        assertEquals("LiveData value was never set.", timedOutException.message)
     }
 
     /*
@@ -55,7 +58,7 @@ class NoteViewModelTest {
         noteViewModel.setNote(NOTE_1)
         val observedNote = noteViewModel.note.getOrAwaitValue()
         //Assert
-        Assertions.assertEquals(NOTE_1, observedNote)
+        assertEquals(NOTE_1, observedNote)
     }
 
     /*
@@ -80,10 +83,11 @@ class NoteViewModelTest {
             SingleToFlowable.just(Resource.success(insertedRow))
         `when`(noteRepository.insertNote(NOTE_1)).thenReturn(returnedData)
         //Act
+        noteViewModel.setInNewNote(true)
         noteViewModel.setNote(NOTE_1)
-        val returnedValue = noteViewModel.insertNote().getOrAwaitValue()
+        val returnedValue = noteViewModel.saveNote().getOrAwaitValue()
         //assert
-        Assertions.assertEquals(insertedRow, returnedValue.data)
+        assertEquals(insertedRow, returnedValue.data)
 
     }
 
@@ -92,12 +96,48 @@ class NoteViewModelTest {
         return error
      */
     @Test
-    fun insertNote_NullNot_returnError() {
+    fun insertNote_NullNote_returnError() {
         //Act
+        noteViewModel.setInNewNote(true)
         val returnedValue = noteViewModel.insertNote().getOrAwaitValue()
         //assert
-        Assertions.assertEquals(
+        assertEquals(
             Resource.error<Int>(msg = "Inserting note error: note is null"),
+            returnedValue
+        )
+
+    }
+
+    /*
+        update note didn't set any note (_Note.value) is null
+        return error
+     */
+    @Test
+    fun updateNote_NullNot_returnError() {
+        //Act
+        noteViewModel.setInNewNote(false)
+        val returnedValue = noteViewModel.updateNote().getOrAwaitValue()
+        //assert
+        assertEquals(
+            Resource.error<Int>(msg = "Updating note error: note is null"),
+            returnedValue
+        )
+
+    }
+
+    /*
+        saving note didn't set any note (_Note.value) is null
+        return error
+     */
+    @Test
+    fun saveNot_NullNote_returnError() {
+        //Act
+
+        noteViewModel.setInNewNote(true)
+        val returnedValue = noteViewModel.saveNote().getOrAwaitValue()
+        //assert
+        assertEquals(
+            Resource.error<Int>(msg = "Saving note error: note is null"),
             returnedValue
         )
 
@@ -116,27 +156,13 @@ class NoteViewModelTest {
             SingleToFlowable.just(Resource.success(updatedRow))
         `when`(noteRepository.updateNote(NOTE_1)).thenReturn(returnedData)
         //Act
+        noteViewModel.setInNewNote(false)
         noteViewModel.setNote(NOTE_1)
-        val returnedValue = noteViewModel.updateNote().getOrAwaitValue()
+        val returnedValue = noteViewModel.saveNote().getOrAwaitValue()
         //Assert
-        Assertions.assertEquals(Resource.success(updatedRow), returnedValue)
+        assertEquals(Resource.success(updatedRow), returnedValue)
     }
 
-    /*
-        update note didn't set any note (_Note.value) is null
-        return error
-     */
-    @Test
-    fun updateNote_NullNot_returnError() {
-        //Act
-        val returnedValue = noteViewModel.updateNote().getOrAwaitValue()
-        //assert
-        Assertions.assertEquals(
-            Resource.error<Int>(msg = "Updating note error: note is null"),
-            returnedValue
-        )
-
-    }
 
     /*
         update : don't return row without observer
@@ -148,5 +174,63 @@ class NoteViewModelTest {
         //Assert
         verify(noteRepository, never()).updateNote(NOTE_1)
     }
+
+    /*
+        save note with empty content
+        should return error
+     */
+    @Test
+    fun saveNote_emptyContent_returnError() {
+        //Act
+        noteViewModel.setNote(NOTE_1.copy(content = "   "))
+        val returnedValue = noteViewModel.saveNote().getOrAwaitValue()
+        //Assert
+        assertEquals(
+            Resource.error<Int>("The content of note should not be null"),
+            returnedValue
+        )
+    }
+
+    /*
+        updateNote: update content and title of note
+     */
+    @Test
+    fun updateNote_updateContentAndTitle() {
+        //Arrange
+        noteViewModel.setNote(NOTE_1)
+        //Act
+        noteViewModel.updateNote(NOTE_2.title, NOTE_2.content)
+        val timeStamp = DateUtil.getCurrentTimeStamp()
+        val updatedNote = noteViewModel.note.value
+        //Assert
+        assertNotNull(updatedNote)
+        assertEquals(NOTE_2.title, updatedNote?.title)
+        assertEquals(NOTE_2.content, updatedNote?.content)
+        assertEquals(timeStamp, updatedNote?.timeStamp)
+    }
+
+    /*
+        updateNote: update with empty and null content should not update
+     */
+    @Test
+    fun updateNote_NullContent_shouldNotUpdate() {
+        //Arrange
+        noteViewModel.setNote(NOTE_1)
+        //Act
+        val mainNote = noteViewModel.note.value
+        noteViewModel.updateNote(NOTE_2.title, "      ")
+        val emptyNote = noteViewModel.note.value
+        noteViewModel.updateNote(NOTE_2.title, null)
+        val nullNote = noteViewModel.note.value
+
+        //Assert
+        assertNotNull(mainNote)
+        assertNotNull(emptyNote)
+        assertNotNull(nullNote)
+        assertEquals(mainNote, emptyNote)
+        assertEquals(mainNote, nullNote)
+        assertEquals(nullNote, emptyNote)
+    }
+
 
 }

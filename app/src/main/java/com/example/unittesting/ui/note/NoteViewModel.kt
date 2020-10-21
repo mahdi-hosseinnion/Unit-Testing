@@ -37,7 +37,6 @@ constructor(
         get() = _ViewState
 
     fun insertNote(): LiveData<Resource<Int>> {
-        Log.d(TAG, "saveNote: insertNoteCalled")
         return note.value?.let { note ->
             LiveDataReactiveStreams
                 .fromPublisher(
@@ -47,16 +46,10 @@ constructor(
                         }
 
                 )
-        } ?: object : LiveData<Resource<Int>>() {
-            override fun onActive() {
-                super.onActive()
-                value = Resource.error("Inserting note error: note is null", null)
-            }
-        }
+        } ?: createErrorLiveData("Inserting note error: note is null")
     }
 
     fun updateNote(): LiveData<Resource<Int>> {
-        Log.d(TAG, "saveNote: updateNoteCalled")
         return note.value?.let { note ->
             LiveDataReactiveStreams.fromPublisher(
                 noteRepository.updateNote(note)
@@ -64,19 +57,14 @@ constructor(
                         updateSubscription = it
                     }
             )
-        } ?: object : LiveData<Resource<Int>>() {
-            override fun onActive() {
-                super.onActive()
-                value = Resource.error("Updating note error: note is null")
-            }
-        }
+        } ?:createErrorLiveData("Updating note error: note is null")
     }
 
-    fun updateNote(title: String, content: String) {
+    fun updateNote(title: String, content: String?) {
         if (note.value == null) {
             return
         }
-        if (content.isNotBlank()) {
+        if (!content.isNullOrBlank()) {
             val updatedNote: Note = Note(note.value!!)
                 .copy(
                     title = title,
@@ -87,9 +75,12 @@ constructor(
         }
     }
 
-    fun saveNote(): LiveData<Resource<Int>>? {
+    fun saveNote(): LiveData<Resource<Int>> {
+        if(note.value==null){
+            return createErrorLiveData("Saving note error: note is null")
+        }
         if (!shouldAllowSave()) {
-            return null
+            return createErrorLiveData("The content of note should not be null")
         }
         cancelPendingTransaction()
         return object : NoteInsertUpdateHelper<Int>() {
@@ -146,10 +137,21 @@ constructor(
     }
 
     private fun shouldAllowSave(): Boolean {
-        return note.value?.content!!.isNotBlank()
+        note.value?.content?.let {
+            return it.isNotBlank()
+        }
+        return false
     }
 
     fun shouldNavigateBack(): Boolean =
         viewState.value == NoteViewState.VIEW
 
+    private fun <T> createErrorLiveData(message: String): LiveData<Resource<T>> {
+        return object : LiveData<Resource<T>>() {
+            override fun onActive() {
+                super.onActive()
+                value = Resource.error(message)
+            }
+        }
+    }
 }
