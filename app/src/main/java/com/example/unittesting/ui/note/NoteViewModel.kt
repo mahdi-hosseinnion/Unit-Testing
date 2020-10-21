@@ -49,7 +49,6 @@ constructor(
                 value = Resource.error("Inserting note error: note is null", null)
             }
         }
-
     }
 
     fun updateNote(): LiveData<Resource<Int>> {
@@ -63,7 +62,7 @@ constructor(
         } ?: object : LiveData<Resource<Int>>() {
             override fun onActive() {
                 super.onActive()
-                value = Resource.error("Inserting note error: note is null")
+                value = Resource.error("Updating note error: note is null")
             }
         }
     }
@@ -72,13 +71,13 @@ constructor(
         if (note.value == null) {
             return
         }
-        val temp = removeWhiteSpace(content)
-        if (temp.isNotEmpty()) {
+        if (content.isNotBlank()) {
             val updatedNote: Note = Note(note.value!!)
-            updatedNote.title = title
-            updatedNote.content = content
-            updatedNote.timeStamp = DateUtil.getCurrentTimeStamp()
-
+                .copy(
+                    title = title,
+                    content = content,
+                    timeStamp = DateUtil.getCurrentTimeStamp()
+                )
             _Note.value = updatedNote
         }
     }
@@ -126,13 +125,6 @@ constructor(
         _Note.value = note
     }
 
-    private fun removeWhiteSpace(text: String): String {
-        var string = text
-        string = string.replace("\n", "")
-        string = string.replace(" ", "")
-        return string
-    }
-
     fun cancelPendingTransaction() {
         cancelInsertTransaction()
         cancelUpdateTransaction()
@@ -149,7 +141,7 @@ constructor(
     }
 
     private fun shouldAllowSave(): Boolean {
-        return removeWhiteSpace(note.value?.content!!).isNotEmpty()
+        return note.value?.content!!.isNotBlank()
     }
 
     fun shouldNavigateBack(): Boolean =

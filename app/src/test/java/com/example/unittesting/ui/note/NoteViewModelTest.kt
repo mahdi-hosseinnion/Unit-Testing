@@ -59,6 +59,17 @@ class NoteViewModelTest {
     }
 
     /*
+    Insert: don't return new row without observe
+     */
+    @Test
+    fun insertNote_dontReturnInsertRowWithoutObserve() {
+        //Act
+        noteViewModel.setNote(NOTE_1)
+        //Assert
+        verify(noteRepository, never()).insertNote(NOTE_1)
+    }
+
+    /*
     Insert a new note and observe row return
      */
     @Test
@@ -77,14 +88,65 @@ class NoteViewModelTest {
     }
 
     /*
-    Insert: don't return new row without observe
+        insert note didn't set any note (_Note.value) is null
+        return error
      */
     @Test
-    fun insertNote_dontReturnInsertRowWithoutObserve() {
+    fun insertNote_NullNot_returnError() {
+        //Act
+        val returnedValue = noteViewModel.insertNote().getOrAwaitValue()
+        //assert
+        Assertions.assertEquals(
+            Resource.error<Int>(msg = "Inserting note error: note is null"),
+            returnedValue
+        )
+
+    }
+
+    //just learn coverage test by rightClick on any class and Run 'Any class' with coverage
+
+    /*
+        update a note adn observe row returned
+     */
+    @Test
+    fun updateNote_returnRow() {
+        //Arrange
+        val updatedRow = 1
+        val returnedData: Flowable<Resource<Int>> =
+            SingleToFlowable.just(Resource.success(updatedRow))
+        `when`(noteRepository.updateNote(NOTE_1)).thenReturn(returnedData)
+        //Act
+        noteViewModel.setNote(NOTE_1)
+        val returnedValue = noteViewModel.updateNote().getOrAwaitValue()
+        //Assert
+        Assertions.assertEquals(Resource.success(updatedRow), returnedValue)
+    }
+
+    /*
+        update note didn't set any note (_Note.value) is null
+        return error
+     */
+    @Test
+    fun updateNote_NullNot_returnError() {
+        //Act
+        val returnedValue = noteViewModel.updateNote().getOrAwaitValue()
+        //assert
+        Assertions.assertEquals(
+            Resource.error<Int>(msg = "Updating note error: note is null"),
+            returnedValue
+        )
+
+    }
+
+    /*
+        update : don't return row without observer
+     */
+    @Test
+    fun updateNote_dontReturnInsertRowWithoutObserve() {
         //Act
         noteViewModel.setNote(NOTE_1)
         //Assert
-        verify(noteRepository, never()).insertNote(NOTE_1)
+        verify(noteRepository, never()).updateNote(NOTE_1)
     }
-    //just learn coverage test by rightClick on any class and Run 'Any class' with coverage
+
 }
