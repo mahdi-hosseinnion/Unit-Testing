@@ -11,4 +11,7 @@ object Constants {
     const val UPDATE_FAILURE = "Update failure"
     const val INSERT_SUCCESS = "Insert success"
     const val INSERT_FAILURE = "Insert failure"
+    const val ACTION_INSERT = "ACTION_INSERT"
+    const val ACTION_UPDATE = "ACTION_UPDATE"
+    const val GENERIC_ERROR = "Something went wrong"
 }

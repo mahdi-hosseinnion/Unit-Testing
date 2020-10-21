@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.example.unittesting.models.Note
 import com.example.unittesting.repository.NoteRepository
 import com.example.unittesting.ui.Resource
+import com.example.unittesting.util.Constants.ACTION_INSERT
+import com.example.unittesting.util.Constants.ACTION_UPDATE
 import com.example.unittesting.util.Constants.NOTE_TITLE_NULL
 import com.example.unittesting.util.DateUtil
 import org.reactivestreams.Subscription
@@ -86,7 +88,27 @@ constructor(
             return null
         }
         cancelPendingTransaction()
-        return null
+        return object : NoteInsertUpdateHelper<Int>() {
+            override fun setNoteId(i: Int) {
+                isNewNote = false
+                val note = note.value?.copy(id = i)
+                _Note.value = note
+            }
+
+            override fun defineAction(): String {
+                return if (isNewNote) ACTION_INSERT else ACTION_UPDATE
+
+            }
+
+            override fun onTransactionComplete() {
+                updateSubscription = null
+                insertSubscription = null
+            }
+
+            override fun getAction(): LiveData<Resource<Int>> {
+                return if (isNewNote) insertNote() else updateNote()
+            }
+        }.getAsLiveData()
     }
 
     fun setViewState(viewState: NoteViewState) {
