@@ -1,5 +1,6 @@
 package com.example.unittesting.ui.note
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +22,8 @@ class NoteViewModel
 constructor(
     val noteRepository: NoteRepository
 ) : ViewModel() {
+    private val TAG = "NoteViewModel"
+
     private var _Note = MutableLiveData<Note>()
     private var _ViewState = MutableLiveData<NoteViewState>()
 
@@ -34,6 +37,7 @@ constructor(
         get() = _ViewState
 
     fun insertNote(): LiveData<Resource<Int>> {
+        Log.d(TAG, "saveNote: insertNoteCalled")
         return note.value?.let { note ->
             LiveDataReactiveStreams
                 .fromPublisher(
@@ -52,6 +56,7 @@ constructor(
     }
 
     fun updateNote(): LiveData<Resource<Int>> {
+        Log.d(TAG, "saveNote: updateNoteCalled")
         return note.value?.let { note ->
             LiveDataReactiveStreams.fromPublisher(
                 noteRepository.updateNote(note)

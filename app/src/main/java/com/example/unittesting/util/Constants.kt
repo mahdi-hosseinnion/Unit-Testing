@@ -2,7 +2,7 @@ package com.example.unittesting.util
 
 object Constants {
 
-    const val NETWORK_DELAY: Long = 0L
+    const val NETWORK_DELAY: Long = 2000L
     const val NOTE_TITLE_NULL = "Note title cannot be null"
     const val INVALID_NOTE_ID = "Invalid id. Can't delete note"
     const val DELETE_SUCCESS = "Delete success"
