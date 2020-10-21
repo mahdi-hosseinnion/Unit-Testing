@@ -12,6 +12,7 @@ import com.example.unittesting.util.Constants.ACTION_INSERT
 import com.example.unittesting.util.Constants.ACTION_UPDATE
 import com.example.unittesting.util.Constants.NOTE_TITLE_NULL
 import com.example.unittesting.util.DateUtil
+import com.example.unittesting.util.StaticMethods.createResourceErrorLiveData
 import org.reactivestreams.Subscription
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,7 +47,7 @@ constructor(
                         }
 
                 )
-        } ?: createErrorLiveData("Inserting note error: note is null")
+        } ?: createResourceErrorLiveData("Inserting note error: note is null")
     }
 
     fun updateNote(): LiveData<Resource<Int>> {
@@ -57,7 +58,7 @@ constructor(
                         updateSubscription = it
                     }
             )
-        } ?:createErrorLiveData("Updating note error: note is null")
+        } ?:createResourceErrorLiveData("Updating note error: note is null")
     }
 
     fun updateNote(title: String, content: String?) {
@@ -77,10 +78,10 @@ constructor(
 
     fun saveNote(): LiveData<Resource<Int>> {
         if(note.value==null){
-            return createErrorLiveData("Saving note error: note is null")
+            return createResourceErrorLiveData("Saving note error: note is null")
         }
         if (!shouldAllowSave()) {
-            return createErrorLiveData("The content of note should not be null")
+            return createResourceErrorLiveData("The content of note should not be null")
         }
         cancelPendingTransaction()
         return object : NoteInsertUpdateHelper<Int>() {
@@ -146,12 +147,5 @@ constructor(
     fun shouldNavigateBack(): Boolean =
         viewState.value == NoteViewState.VIEW
 
-    private fun <T> createErrorLiveData(message: String): LiveData<Resource<T>> {
-        return object : LiveData<Resource<T>>() {
-            override fun onActive() {
-                super.onActive()
-                value = Resource.error(message)
-            }
-        }
-    }
+
 }
