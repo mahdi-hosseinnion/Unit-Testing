@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.example.unittesting.models.Note
 import com.example.unittesting.repository.NoteRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class NotesListViewModel
 @Inject
 constructor(
