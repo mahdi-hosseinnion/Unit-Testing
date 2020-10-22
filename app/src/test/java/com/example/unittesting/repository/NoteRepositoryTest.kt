@@ -10,6 +10,7 @@ import com.example.unittesting.util.StaticMethods.createLiveDataWithInitialData
 import com.example.unittesting.util.getOrAwaitValue
 import com.exmaple.unittesting.NoteUtil.NOTE_1
 import com.exmaple.unittesting.NoteUtil.NOTE_2
+import com.exmaple.unittesting.NoteUtil.getListOfNote
 import io.reactivex.Single
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Assertions
@@ -188,11 +189,7 @@ class NoteRepositoryTest {
         //Arrange
         val returnedData: LiveData<List<Note>> = createLiveDataWithInitialData(
             aValue = {
-                val listOfNote = ArrayList<Note>()
-                for (i in 0..10) {
-                    listOfNote.add(NOTE_1.copy(id = (i * 11)))
-                }
-                listOfNote
+                getListOfNote()
             }
         )
         printAllMembersOfIt(returnedData)
@@ -225,6 +222,7 @@ class NoteRepositoryTest {
         val mainList = returnedData.getOrAwaitValue()
         assertEquals(mainList, returnedValue)
     }
+
     //for testing the test
     private fun printAllMembersOfIt(source: LiveData<List<Note>>) {
         val items: List<Note> = source.getOrAwaitValue()

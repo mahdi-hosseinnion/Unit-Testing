@@ -21,4 +21,11 @@ public object NoteUtil {
     val CONTENT_2 = "some content as;djf;lksadjf"
     val CONTENT_3 = "SOME CONTENT A;KLDSFJ;SAKLD"
 
+    fun getListOfNote(count:Int = 10):List<Note>{
+        val listOfNote = ArrayList<Note>()
+        for (i in 0..count) {
+            listOfNote.add(NOTE_1.copy(id = (i * 2)))
+        }
+        return listOfNote
+    }
 }
