@@ -32,7 +32,7 @@ public class NoteRecyclerAdapter(
     override fun getItemCount(): Int = notes.size
 
     public fun submitList(list: List<Note>) {
-        this.notes.addAll(list)
+        this.notes =list as ArrayList<Note>
         notifyDataSetChanged()
     }
 
